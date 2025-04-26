@@ -53,6 +53,67 @@ let recordingTimeout = null; // Timeout pour limiter la durée d'enregistrement
 // Variables pour la réception de morceaux audio
 let audioChunkBuffer = {}; // Structure pour stocker les morceaux audio par messageId
 
+// Sons de notification (variables globales)
+let notificationSounds = {
+    userJoin: null,
+    message: null,
+    audioMessage: null
+};
+// Variables pour la notification du titre
+let originalTitle = document.title;
+let titleInterval = null;
+let unreadMessages = 0;
+
+// Fonction pour démarrer l'animation du titre
+function startTitleNotification() {
+    // Ne rien faire si la page est active
+    if (document.visibilityState === 'visible'){
+        stopTitleNotification();
+        return;
+    } 
+    
+    // Incrémenter le compteur de messages non lus
+    unreadMessages++;
+    
+    // Arrêter l'intervalle existant s'il y en a un
+    if (titleInterval) clearInterval(titleInterval);
+    
+    // Créer une nouvelle animation de titre
+    let isOriginal = false;
+    titleInterval = setInterval(() => {
+        document.title = isOriginal ? originalTitle : `(${unreadMessages}) Nouveau message`;
+        isOriginal = !isOriginal;
+    }, 1000);
+}
+
+// Fonction pour arrêter l'animation du titre
+function stopTitleNotification() {
+    if (titleInterval) {
+        clearInterval(titleInterval);
+        titleInterval = null;
+    }
+    document.title = originalTitle;
+    unreadMessages = 0;
+}
+
+function addVisualNotification(element) {
+    if (!element) return;
+    
+    // Supprimer la classe si elle est déjà présente
+    element.classList.remove('notification-highlight');
+    
+    // Forcer un reflow pour réinitialiser l'animation
+    void element.offsetWidth;
+    
+    // Ajouter la classe pour déclencher l'animation
+    element.classList.add('notification-highlight');
+    
+    // Optionnel: supprimer la classe après l'animation
+    setTimeout(() => {
+        element.classList.remove('notification-highlight');
+    }, 1000); // 1000ms = durée de l'animation
+}
+
 // --- FONCTIONS CRYPTO (Avec gestion erreurs basique) ---
 
 async function generateKeyPair() {
@@ -233,6 +294,104 @@ function updateAudioStatus(message, isError = false) {
     if (audioStatus) {
         audioStatus.textContent = message;
         audioStatus.style.color = isError ? 'red' : 'green';
+    }
+}
+// Chargement des sons de notification
+function loadNotificationSounds() {
+    try {
+        // Création des objets Audio
+        notificationSounds.userJoin = new Audio('/sounds/user-join.mp3');
+        notificationSounds.message = new Audio('/sounds/message.mp3');
+        notificationSounds.audioMessage = new Audio('/sounds/audio-message.mp3');
+        
+        // Préchargement des sons
+        Object.values(notificationSounds).forEach(sound => {
+            if (sound) {
+                sound.load();
+                // Réduire le volume pour ne pas surprendre les utilisateurs
+                sound.volume = 0.5;
+            }
+        });
+        
+        console.log("Sons de notification chargés avec succès.");
+    } catch (error) {
+        console.error("Erreur lors du chargement des sons de notification:", error);
+    }
+}
+
+// Fonction pour jouer un son de notification
+function playNotificationSound(soundType) {
+    // Vérifier si l'API Audio est disponible
+    if (!window.Audio) {
+        console.warn("L'API Audio n'est pas supportée par ce navigateur.");
+        return;
+    }
+    
+    // Vérifier si les notifications sonores sont activées
+    if (!localStorage.getItem('soundNotificationsEnabled')) {
+        // Par défaut, les sons sont activés - donc si le paramètre n'existe pas, on active
+        localStorage.setItem('soundNotificationsEnabled', 'true');
+    }
+    
+    if (localStorage.getItem('soundNotificationsEnabled') === 'false') {
+        return; // Sons désactivés par l'utilisateur
+    }
+    
+    // Vérifier si le son demandé existe
+    const sound = notificationSounds[soundType];
+    if (!sound) {
+        console.warn(`Type de son de notification inconnu: ${soundType}`);
+        return;
+    }
+    
+    try {
+        // Réinitialiser le son s'il était déjà en cours de lecture
+        sound.pause();
+        sound.currentTime = 0;
+        
+        // Jouer le son
+        sound.play().catch(error => {
+            console.warn(`Impossible de jouer le son de notification: ${error.message}`);
+        });
+    } catch (error) {
+        console.error("Erreur lors de la lecture du son de notification:", error);
+    }
+}
+
+// Ajouter un contrôle pour activer/désactiver les sons
+function initSoundControls() {
+    // Créer l'élément de contrôle des sons s'il n'existe pas déjà
+    if (!document.getElementById('sound-control')) {
+        const soundControl = document.createElement('div');
+        soundControl.id = 'sound-control';
+        soundControl.className = 'sound-control';
+        
+        // Vérifier si les sons sont activés
+        const soundsEnabled = localStorage.getItem('soundNotificationsEnabled') !== 'false';
+        
+        // Créer le label et la checkbox
+        const label = document.createElement('label');
+        label.innerHTML = `
+            <input type="checkbox" id="sound-toggle" ${soundsEnabled ? 'checked' : ''}>
+            <span>Notifications sonores</span>
+        `;
+        
+        soundControl.appendChild(label);
+        
+        // Ajouter le contrôle au document
+        const chatArea = document.getElementById('chat-area');
+        if (chatArea) {
+            chatArea.insertBefore(soundControl, chatArea.firstChild);
+        }
+        
+        // Ajouter l'écouteur d'événement
+        const soundToggle = document.getElementById('sound-toggle');
+        if (soundToggle) {
+            soundToggle.addEventListener('change', function() {
+                localStorage.setItem('soundNotificationsEnabled', this.checked ? 'true' : 'false');
+                console.log(`Notifications sonores ${this.checked ? 'activées' : 'désactivées'}`);
+            });
+        }
     }
 }
 
@@ -466,6 +625,10 @@ function stopRecording() {
 }
 // Ajoutez cette fonction pour assembler les morceaux audio reçus
 function processAudioChunks(messageId, senderName) {
+    // Démarrer l'animation du titre si la page n'est pas visible
+    if (document.visibilityState !== 'visible') {
+        startTitleNotification();
+    }
     const chunks = audioChunkBuffer[messageId];
     if (!chunks || !chunks.ready) return;
     
@@ -498,6 +661,10 @@ function processAudioChunks(messageId, senderName) {
     
     // Ajouter le message audio à l'interface
     addAudioMessage(audioBlob, 'other');
+    // Ajouter une notification visuelle
+    addVisualNotification(messagesDiv);
+    // Ajouter à la fin, après l'ajout du message à l'interface:
+    playNotificationSound('audioMessage');
     
     // Nettoyer
     delete audioChunkBuffer[messageId];
@@ -586,6 +753,9 @@ window.onload = () => {
         return;
     }
 
+    
+    // Charger les sons de notification
+    loadNotificationSounds();
     // Initialisation normale pour la page de chat
     console.log(`Prêt à rejoindre le salon : ${roomId}`);
     resetChatState(); // Prépare l'UI pour entrer le nom
@@ -749,6 +919,8 @@ socket.on('receiveAudioMessage', async (data) => {
         // Ajouter le message audio à l'interface
         addAudioMessage(audioBlob, 'other');
         updateStatus("Prêt.");
+        // Après que le message soit déchiffré et ajouté à l'interface:
+        playNotificationSound('audioMessage');
         
     } catch (error) {
         console.error("Erreur lors du déchiffrement du message audio:", error);
@@ -881,6 +1053,9 @@ socket.on('joinAccepted', async (data) => {
         if(sendButton) sendButton.disabled = false; 
         if(messageInput) messageInput.focus();
         if(audioControlsDiv) audioControlsDiv.style.display = 'block';
+        playNotificationSound('userJoin');
+        // Initialiser les contrôles de son après l'établissement de la connexion
+        initSoundControls();
     }
 });
 
@@ -902,6 +1077,9 @@ socket.on('peerJoined', async (data) => {
         if(messageInput) messageInput.disabled = false; 
         if(sendButton) sendButton.disabled = false;
         if(audioControlsDiv) audioControlsDiv.style.display = 'block';
+        // Notification visuelle sur toute la zone de chat
+        addVisualNotification(chatAreaDiv);
+        playNotificationSound('userJoin');
     } else { 
         updateStatus(`Erreur clé ${peerName}. Chat bloqué.`, true); 
         if(messageInput) messageInput.disabled = true; 
@@ -932,6 +1110,10 @@ socket.on('pendingUserDisconnected', (data) => {
 });
 
 socket.on('receiveMessage', async (data) => {
+    // Démarrer l'animation du titre si la page n'est pas visible
+    if (document.visibilityState !== 'visible') {
+        startTitleNotification();
+    }
     if (!roomId || !myKeyPair) return; 
     if (!data?.senderName || !data.encryptedMessage) { 
         console.warn("Msg reçu invalide:", data); 
@@ -943,6 +1125,10 @@ socket.on('receiveMessage', async (data) => {
         addMessage(`[Impossible déchiffrer msg de ${data.senderName}]`, 'system');
     else 
         addMessage(`${data.senderName}: ${decryptedText}`, 'other');
+        // Ajouter une notification visuelle au conteneur de messages
+        addVisualNotification(messagesDiv);
+        // Après que le message soit déchiffré et ajouté à l'interface:
+        playNotificationSound('message');
 });
 
 socket.on('userLeft', (data) => {

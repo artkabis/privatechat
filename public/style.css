@@ -124,3 +124,18 @@ body {
      cursor: not-allowed;
      opacity: 0.6;
 }
+.sound-control {
+    text-align: right;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.sound-control label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.sound-control input {
+    margin-right: 5px;
+}

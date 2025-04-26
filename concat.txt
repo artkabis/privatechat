@@ -1,0 +1,3 @@
+file 'public/sounds/message.mp3'
+file 'public/sounds/silence.mp3'
+file 'public/sounds/message.mp3'
