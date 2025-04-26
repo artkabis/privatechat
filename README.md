@@ -12,6 +12,7 @@ Un prototype de chat privé avec chiffrement de bout en bout (End-to-End Encrypt
 - 🔍 **Vérification d'empreintes** pour confirmer l'absence d'attaque de l'homme du milieu
 - 🔗 **Génération de liens uniques** pour chaque conversation
 - ✅ **Validation explicite** des participants par l'hôte du salon
+- 🔔 **Notifications sonores et visuelles** pour les nouveaux messages et participants
 - 📱 **Interface responsive** compatible avec appareils mobiles
 - ⚠️ **Gestion robuste des erreurs** et des cas limites
 
@@ -90,6 +91,17 @@ Ce prototype protège contre :
   - Chiffrement de la clé AES avec RSA-OAEP
   - Transmission par fragments pour les gros fichiers audio
 
+### Système de notifications
+- Notifications sonores personnalisables pour:
+  - Arrivée d'un nouvel utilisateur dans le salon
+  - Réception d'un message texte
+  - Réception d'un message audio
+- Notifications visuelles:
+  - Highlight sur la zone de messages lors de nouvelles communications
+  - Animation du titre de la page quand celle-ci n'est pas active
+  - Compteur de messages non lus dans le titre de l'onglet
+- Préférences utilisateur sauvegardées dans le localStorage
+
 ## Structure du projet
 
 ```
@@ -99,7 +111,11 @@ privatechat/
 ├── public/               # Fichiers clients servis par Express
 │   ├── index.html        # Interface utilisateur HTML
 │   ├── style.css         # Styles CSS
-│   └── client.js         # Logique client (crypto, UI, Socket.IO)
+│   ├── client.js         # Logique client (crypto, UI, Socket.IO)
+│   └── sounds/           # Fichiers audio pour les notifications
+│       ├── message.mp3   # Notification pour messages texte
+│       ├── user-join.mp3 # Notification quand un utilisateur rejoint
+│       └── audio-message.mp3 # Notification pour messages audio
 └── README.md             # Ce fichier
 ```
 
@@ -108,6 +124,7 @@ privatechat/
 - [ ] Améliorer la gestion de la connexion/reconnexion
 - [ ] Ajouter le chiffrement avec perfect forward secrecy
 - [ ] Support pour les conversations de groupe
+- [x] Notifications sonores et visuelles
 - [ ] Notifications de frappe
 - [ ] Partage de fichiers chiffrés
 - [ ] Mode sombre
