@@ -1,0 +1,126 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    line-height: 1.5;
+}
+
+#status {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.prompt {
+    border: 1px solid orange;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #fffadf;
+}
+
+#chat-area {
+    margin-top: 15px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#messages {
+    border: 1px solid #eee;
+    height: 300px;
+    margin-bottom: 10px;
+    overflow-y: scroll;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+#messages p {
+    margin: 5px 0;
+    padding: 4px 8px;
+    border-radius: 5px;
+    max-width: 80%;
+    word-wrap: break-word; /* Pour les longs mots sans espaces */
+}
+
+#messages .my-message {
+    text-align: right;
+    background-color: #dcf8c6;
+    margin-left: auto; /* Aligne à droite */
+    margin-right: 0;
+}
+
+#messages .other-message {
+    text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    margin-right: auto; /* Aligne à gauche */
+    margin-left: 0;
+}
+
+#messages .system-message {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    font-size: 0.9em;
+    background-color: transparent;
+    max-width: 100%;
+}
+
+.security-box {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px dashed #aaa;
+    background-color: #f0f0f0;
+    font-size: 0.9em;
+}
+.security-box h4 {
+    margin-top: 0;
+    color: #333;
+}
+.fingerprint-line {
+    margin: 5px 0;
+}
+.fingerprint-line code {
+    background-color: #e0e0e0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+.warning {
+    font-size: 0.9em;
+    color: #c00;
+    font-weight: bold;
+}
+
+
+#input-area {
+    display: flex; /* Pour aligner input et bouton */
+    margin-top: 10px;
+}
+
+#input-area input {
+    flex-grow: 1; /* Prend l'espace restant */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px 0 0 3px;
+}
+
+#input-area button {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 0 3px 3px 0;
+}
+#input-area button:disabled {
+    cursor: not-allowed;
+    background-color: #f9f9f9;
+    color: #aaa;
+}
+#input-area button:hover:not(:disabled) {
+    background-color: #ddd;
+}
+
+#user-details button:disabled,
+.prompt button:disabled {
+     cursor: not-allowed;
+     opacity: 0.6;
+}

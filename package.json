@@ -1,0 +1,14 @@
+{
+  "name": "chat-prive-e2ee",
+  "version": "0.2.0",
+  "description": "Prototype de chat privé E2EE avec gestion erreurs et empreintes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "uuid": "^9.0.1"
+  }
+}

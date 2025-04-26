@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Privé E2EE</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Styles spécifiques pour les contrôles audio */
+        #audio-controls {
+            margin: 15px 0;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: none; /* Caché par défaut */
+        }
+        
+        #record-button, #stop-record-button {
+            background-color: #d64541;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        #record-button:hover, #stop-record-button:hover {
+            background-color: #c0392b;
+        }
+        
+        #stop-record-button {
+            display: none; /* Caché par défaut */
+            background-color: #333;
+        }
+        
+        #audio-status {
+            display: inline-block;
+            margin-left: 10px;
+            font-style: italic;
+        }
+        
+        /* Style pour les messages audio */
+        audio {
+            margin: 5px 0;
+            max-width: 100%;
+        }
+        
+        .my-message audio, .other-message audio {
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Privé Chiffré (Prototype)</h1>
+    
+    <div id="user-details" style="display: none;">
+        <label for="name">Votre Prénom/Nom:</label>
+        <input type="text" id="name" required maxlength="50">
+        <button id="join-button">Rejoindre / Démarrer</button>
+    </div>
+    
+    <div id="status" aria-live="polite"></div>
+    
+    <div id="validation-prompt" class="prompt" style="display: none;">
+        <p id="validation-text"></p>
+        <button id="accept-button">Accepter</button>
+        <button id="reject-button">Refuser</button>
+    </div>
+    
+    <div id="chat-area" style="display: none;">
+        <h2>Conversation</h2>
+        <div id="messages"></div>
+        
+        <div id="security-info" class="security-box" style="display: none;">
+            <h4>Informations de Sécurité (Vérification Manuelle Requise)</h4>
+            <p>Comparez ces empreintes avec votre correspondant via un canal sécurisé externe (téléphone, en personne...) pour vérifier l'absence d'intermédiaire.</p>
+            <div class="fingerprint-line"><strong>Votre empreinte :</strong> <code id="my-fingerprint"></code></div>
+            <div class="fingerprint-line"><strong>Empreinte de <span id="peer-name-fingerprint">votre correspondant</span> :</strong> <code id="peer-fingerprint"></code></div>
+            <p class="warning">Si les empreintes ne correspondent pas, la connexion n'est PAS sécurisée.</p>
+        </div>
+        
+        <div id="input-area">
+            <input type="text" id="message-input" placeholder="Votre message (sera chiffré)..." disabled>
+            <button id="send-button" disabled>Envoyer</button>
+        </div>
+        
+        <!-- Nouveaux contrôles audio -->
+        <div id="audio-controls">
+            <button id="record-button" title="Enregistrer un message vocal">🎤 Enregistrer</button>
+            <button id="stop-record-button" title="Arrêter l'enregistrement">⏹️ Arrêter</button>
+            <span id="audio-status"></span>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/client.js"></script>
+</body>
+</html>
