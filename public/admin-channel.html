@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canal Administrateur Privé</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Styles spécifiques pour le canal administrateur */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .login-container h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .login-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .login-button:hover {
+            background-color: #45a049;
+        }
+        
+        .admin-badge {
+            display: inline-block;
+            background-color: #333;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        #admin-status {
+            background-color: #f8f8f8;
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Canal Administrateur Privé <span class="admin-badge">E2EE</span></h1>
+    
+    <div id="admin-status"></div>
+    
+    <!-- Formulaire de connexion -->
+    <div id="login-container" class="login-container">
+        <h2>Connexion requise</h2>
+        <div id="error-message" class="error-message"></div>
+        
+        <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" id="username" placeholder="Nom d'utilisateur">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" placeholder="Mot de passe">
+        </div>
+        
+        <button id="login-button" class="login-button">Se connecter</button>
+    </div>
+    
+    <!-- Zone de chat (identique à index.html mais cachée initialement) -->
+    <div id="user-details" style="display: none;">
+        <!-- Ce div n'est pas utilisé dans cette version mais gardé pour compatibilité -->
+    </div>
+    
+    <div id="validation-prompt" class="prompt" style="display: none;">
+        <p id="validation-text"></p>
+        <button id="accept-button">Accepter</button>
+        <button id="reject-button">Refuser</button>
+    </div>
+    
+    <div id="chat-area" style="display: none;">
+        <h2>Canal Administrateur <span id="admin-channel-status" class="admin-badge">Sécurisé</span></h2>
+        
+        <div id="messages"></div>
+        
+        <div id="security-info" class="security-box" style="display: none;">
+            <h4>Informations de Sécurité (Vérification Manuelle Requise)</h4>
+            <p>Comparez ces empreintes via un canal externe pour vérifier l'absence d'intermédiaire.</p>
+            <div class="fingerprint-line"><strong>Votre empreinte :</strong> <code id="my-fingerprint"></code></div>
+            <div class="fingerprint-line"><strong>Empreinte de <span id="peer-name-fingerprint">votre correspondant</span> :</strong> <code id="peer-fingerprint"></code></div>
+            <p class="warning">Si les empreintes ne correspondent pas, la connexion n'est PAS sécurisée.</p>
+        </div>
+        
+        <div id="input-area">
+            <input type="text" id="message-input" placeholder="Votre message (sera chiffré)..." disabled>
+            <button id="send-button" disabled>Envoyer</button>
+        </div>
+        
+        <!-- Contrôles audio -->
+        <div id="audio-controls">
+            <button id="record-button" title="Enregistrer un message vocal">🎤 Enregistrer</button>
+            <button id="stop-record-button" title="Arrêter l'enregistrement">⏹️ Arrêter</button>
+            <span id="audio-status"></span>
+        </div>
+        
+        <!-- Contrôle des sons -->
+        <div id="sound-control" class="sound-control">
+            <label>
+                <input type="checkbox" id="sound-toggle" checked>
+                <span>Notifications sonores</span>
+            </label>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/admin-client.js"></script>
+</body>
+</html>
